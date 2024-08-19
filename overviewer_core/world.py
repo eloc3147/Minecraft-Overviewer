@@ -27,7 +27,6 @@ import math
 
 from overviewer_core import overviewer_core_new
 
-from . import nbt
 from . import cache
 from .biome import reshape_biome_data
 
@@ -1417,8 +1416,8 @@ class RegionSet(object):
 
     def _get_regionobj(self, regionfilename: str):
         # Check the cache first. If it's not there, create the
-        # nbt.MCRFileReader object, cache it, and return it
-        # May raise an nbt.CorruptRegionError
+        # overviewer_core_new.McrFileReader object, cache it, and return it
+        # May raise an overviewer_core_new.CorruptRegionError
         try:
             return self.regioncache[regionfilename]
         except KeyError:
@@ -1429,7 +1428,7 @@ class RegionSet(object):
     def _packed_longarray_to_shorts(self, long_array, n, num_palette):
         bits_per_value = (len(long_array) * 64) / n
         if bits_per_value < 4 or 12 < bits_per_value:
-            raise nbt.CorruptChunkError()
+            raise overviewer_core_new.CorruptChunkError()
         b = numpy.frombuffer(numpy.asarray(long_array, dtype=numpy.uint64), dtype=numpy.uint8)
         # give room for work, later
         b = b.astype(numpy.uint16)
@@ -1633,7 +1632,7 @@ class RegionSet(object):
             try:
                 region = self._get_regionobj(regionfile)
                 data = region.load_chunk(x, z)
-            except nbt.CorruptionError as e:
+            except overviewer_core_new.CorruptionError as e:
                 tries -= 1
                 if tries > 0:
                     # Flush the region cache to possibly read a new region file header
@@ -1644,10 +1643,10 @@ class RegionSet(object):
                     continue
                 else:
                     logging.warning("The following was encountered while reading from %s:", self.regiondir)
-                    if isinstance(e, nbt.CorruptRegionError):
+                    if isinstance(e, overviewer_core_new.CorruptRegionError):
                         logging.warning("Tried several times to read chunk %d,%d. Its region (%d,%d) may be corrupt. Giving up.",
                                 x, z,x//32,z//32)
-                    elif isinstance(e, nbt.CorruptChunkError):
+                    elif isinstance(e, overviewer_core_new.CorruptChunkError):
                         logging.warning("Tried several times to read chunk %d,%d. It may be corrupt. Giving up.",
                                 x, z)
                     else:
@@ -1764,7 +1763,7 @@ class RegionSet(object):
                 logging.warning("There was a problem reading chunk %d,%d.  It might be corrupt.  I am giving up and will not render this particular chunk.", x, z)
 
                 logging.debug("Full traceback:", exc_info=1)
-                raise nbt.CorruptChunkError()
+                raise overviewer_core_new.CorruptChunkError()
 
         for k in unrecognized_block_types:
             logging.debug("Found %d blocks of unknown type %s" % (unrecognized_block_types[k], k))
@@ -1782,7 +1781,7 @@ class RegionSet(object):
         for (regionx, regiony), (regionfile, filemtime) in self.regionfiles.items():
             try:
                 mcr = self._get_regionobj(regionfile)
-            except nbt.CorruptRegionError:
+            except overviewer_core_new.CorruptRegionError:
                 logging.warning("Found a corrupt region file at %s,%s in %s, Skipping it.", regionx, regiony, self.regiondir)
                 continue
             for chunkx, chunky in mcr.get_chunks():
@@ -1802,7 +1801,7 @@ class RegionSet(object):
 
             try:
                 mcr = self._get_regionobj(regionfile)
-            except nbt.CorruptRegionError:
+            except overviewer_core_new.CorruptRegionError:
                 logging.warning("Found a corrupt region file at %s,%s in %s, Skipping it.", regionx, regiony, self.regiondir)
                 continue
 
@@ -1821,7 +1820,7 @@ class RegionSet(object):
             return None
         try:
             data = self._get_regionobj(regionfile)
-        except nbt.CorruptRegionError:
+        except overviewer_core_new.CorruptRegionError:
             logging.warning("Ignoring request for chunk %s,%s; region %s,%s seems to be corrupt",
                     x,z, x//32,z//32)
             return None
@@ -2123,7 +2122,7 @@ def get_worlds():
                 info['Data']['path'] = os.path.join(save_dir, dir)
                 if 'LevelName' in info['Data'].keys():
                     ret[info['Data']['LevelName']] = info['Data']
-            except nbt.CorruptNBTError:
+            except overviewer_core_new.CorruptNBTError:
                 ret[os.path.basename(world_path) + " (corrupt)"] = {
                     'path': world_path,
                     'LastPlayed': 0,
@@ -2140,7 +2139,7 @@ def get_worlds():
             info['Data']['path'] = world_path
             if 'LevelName' in info['Data'].keys():
                 ret[info['Data']['LevelName']] = info['Data']
-        except nbt.CorruptNBTError:
+        except overviewer_core_new.CorruptNBTError:
             ret[os.path.basename(world_path) + " (corrupt)"] = {'path': world_path,
                     'LastPlayed': 0,
                     'Time': 0,

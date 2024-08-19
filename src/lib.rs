@@ -16,67 +16,56 @@
 mod nbt;
 
 use std::fs::File;
-use std::io::{BufReader, Cursor};
+use std::io::BufReader;
 use std::path::PathBuf;
 
-use flate2::bufread::{GzDecoder, ZlibDecoder};
+use flate2::bufread::GzDecoder;
+use pyo3::exceptions::PyException;
 use pyo3::types::{PyDict, PyModule, PyModuleMethods};
 use pyo3::{pyfunction, pymodule, wrap_pyfunction, Bound, PyResult, Python};
 
 use nbt::{McrFileReader, NbtFileReader};
 
+pyo3::create_exception!(overviewer_core_new, CorruptionError, PyException);
+pyo3::create_exception!(overviewer_core_new, FileSystemError, CorruptionError);
+pyo3::create_exception!(overviewer_core_new, CorruptRegionError, CorruptionError);
+pyo3::create_exception!(overviewer_core_new, CorruptChunkError, CorruptionError);
+pyo3::create_exception!(overviewer_core_new, CorruptNBTError, CorruptionError);
+
 #[pyfunction]
 /// Reads in the given file as NBT format, parses it, and returns the result as a (name, data) tuple.
-fn load<'py>(path: PathBuf, py: Python<'py>) -> (String, Bound<'py, PyDict>) {
-    let file = File::open(&path).expect("File does not exist");
+fn load<'py>(path: PathBuf, py: Python<'py>) -> PyResult<(String, Bound<'py, PyDict>)> {
+    let file = File::open(&path)
+        .map_err(|e| FileSystemError::new_err(format!("Error opening file: {:?}", e)))?;
     let gzip = GzDecoder::new(BufReader::new(file));
     let mut reader = NbtFileReader::open(gzip);
 
     reader.read_all(py)
 }
 
-// @_file_loader
-// def load_region(fileobj):
-//     """Reads in the given file as a MCR region, and returns an object
-//     for accessing the chunks inside."""
-//     return MCRFileReader(fileobj)
-//
-//
-// class CorruptionError(Exception):
-//     pass
-//
-//
-// class CorruptRegionError(CorruptionError):
-//     """An exception raised when the MCRFileReader class encounters an
-//     error during region file parsing.
-//     """
-//     pass
-//
-//
-// class CorruptChunkError(CorruptionError):
-//     pass
-//
-//
-// class CorruptNBTError(CorruptionError):
-//     """An exception raised when the NBTFileReader class encounters
-//     something unexpected in an NBT file."""
-//     pass
-
-//
-//     def __init__(self, fileobj, is_gzip=True):
-//         """Create a NBT parsing object with the given file-like
-//         object. Setting is_gzip to False parses the file as a zlib
-//         stream instead."""
-//         if is_gzip:
-//             self._file = gzip.GzipFile(fileobj=fileobj, mode='rb')
-//         else:
-//             # pure zlib stream -- maybe later replace this with
-//             # a custom zlib file object?
-//             data = zlib.decompress(fileobj.read())
-//             self._file = BytesIO(data)
-
 #[pymodule]
 fn overviewer_core_new(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add(
+        "CorruptionError",
+        m.py().get_type_bound::<CorruptionError>(),
+    )?;
+    m.add(
+        "FileSystemError",
+        m.py().get_type_bound::<FileSystemError>(),
+    )?;
+    m.add(
+        "CorruptRegionError",
+        m.py().get_type_bound::<CorruptRegionError>(),
+    )?;
+    m.add(
+        "CorruptChunkError",
+        m.py().get_type_bound::<CorruptChunkError>(),
+    )?;
+    m.add(
+        "CorruptNBTError",
+        m.py().get_type_bound::<CorruptNBTError>(),
+    )?;
+
     m.add_function(wrap_pyfunction!(load, m)?)?;
 
     m.add_class::<McrFileReader>()?;

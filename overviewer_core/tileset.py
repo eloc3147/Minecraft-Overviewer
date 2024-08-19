@@ -30,11 +30,13 @@ from itertools import chain, product
 
 from PIL import Image
 
+from overviewer_core import overviewer_core_new
+
 from . import c_overviewer
 from . import rendermodes
 from .c_overviewer import resize_half
 
-from . import nbt, world
+from . import world
 from .files import FileReplacer, get_fs_caps
 from .optimizeimages import optimize_image
 from .util import roundrobin
@@ -1105,7 +1107,7 @@ class TileSet(object):
                 c_overviewer.render_loop(
                     self.world, self.regionset, chunkx, chunky, chunkz, tileimg, xpos, ypos,
                     self.options['rendermode'], self.textures)
-            except nbt.CorruptionError:
+            except overviewer_core_new.CorruptionError:
                 # A warning and traceback was already printed by world.py's
                 # get_chunk()
                 logging.debug("Skipping the render of corrupt chunk at %s,%s "

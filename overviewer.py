@@ -42,7 +42,7 @@ from overviewer_core import optimizeimages, world
 from overviewer_core import config_parser, tileset, assetmanager, dispatcher
 from overviewer_core import cache
 from overviewer_core import observer
-from overviewer_core.nbt import CorruptNBTError
+from overviewer_core.overviewer_core_new import CorruptNBTError
 
 helptext = """
 %(prog)s [--rendermodes=...] [options] <World> <Output Dir>

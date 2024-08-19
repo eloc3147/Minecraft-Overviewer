@@ -140,7 +140,7 @@ def parseBucketChunks(task_tuple):
                     if result:
                         d = create_marker_from_filter_result(poi, result)
                         markers[name].append(d)
-        except nbt.CorruptChunkError:
+        except overviewer_core_new.CorruptChunkError:
             logging.warning("Ignoring POIs in corrupt chunk %d,%d.", b[0], b[1])
         except world.ChunkDoesntExist:
             pass
@@ -192,7 +192,7 @@ def handleEntities(rset, config, config_path, filters, markers):
                         if result:
                             d = create_marker_from_filter_result(poi, result)
                             markers[name]['raw'].append(d)
-            except nbt.CorruptChunkError:
+            except overviewer_core_new.CorruptChunkError:
                 logging.warning("Ignoring POIs in corrupt chunk %d,%d.", x, z)
             except world.ChunkDoesntExist:
                 # iterate_chunks() doesn't inspect chunks and filter out
@@ -329,7 +329,7 @@ def handlePlayers(worldpath, filters, markers):
             data.use_uuid = useUUIDs
             if isSinglePlayer:
                 data = data['Data']['Player']
-        except (IOError, TypeError, KeyError, nbt.CorruptNBTError):
+        except (IOError, TypeError, KeyError, overviewer_core_new.CorruptNBTError):
             logging.warning("Skipping bad player dat file %r.", playerfile)
             continue
 

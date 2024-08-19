@@ -1,6 +1,26 @@
 from typing import Any
 
 
+class CorruptionError(Exception):
+    ...
+
+
+class FileSystemError(CorruptionError):
+    ...
+
+
+class CorruptRegionError(CorruptionError):
+    ...
+
+
+class CorruptChunkError(CorruptionError):
+    ...
+
+
+class CorruptNBTError(CorruptionError):
+    ...
+
+
 def load(path: str) -> tuple[str, dict[str, Any]]:
     ...
 
