@@ -33,6 +33,7 @@ from argparse import ArgumentParser
 
 from overviewer_core import config_parser, logger, nbt, world
 from overviewer_core.files import FileReplacer, get_fs_caps
+import overviewer_core_new
 
 UUID_LOOKUP_URL = 'https://sessionserver.mojang.com/session/minecraft/profile/'
 
@@ -324,7 +325,7 @@ def handlePlayers(worldpath, filters, markers):
 
     for playerfile in playerfiles:
         try:
-            data = PlayerDict(nbt.load(os.path.join(playerdir, playerfile))[1])
+            data = PlayerDict(overviewer_core_new.load(os.path.join(playerdir, playerfile))[1])
             data.use_uuid = useUUIDs
             if isSinglePlayer:
                 data = data['Data']['Player']

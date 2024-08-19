@@ -25,6 +25,8 @@ import locale
 import numpy
 import math
 
+from overviewer_core import overviewer_core_new
+
 from . import nbt
 from . import cache
 from .biome import reshape_biome_data
@@ -100,13 +102,13 @@ class World(object):
         if not os.path.exists(os.path.join(self.worlddir, "level.dat")):
             raise ValueError("level.dat not found in %s" % self.worlddir)
 
-        data = nbt.load(os.path.join(self.worlddir, "level.dat"))[1]['Data']
+        data = overviewer_core_new.load(os.path.join(self.worlddir, "level.dat"))[1]['Data']
         # it seems that reading a level.dat file is unstable, particularly with respect
         # to the spawnX,Y,Z variables.  So we'll try a few times to get a good reading
         # empirically, it seems that 0,50,0 is a "bad" reading
         # update: 0,50,0 is the default spawn, and may be valid is some cases
         # more info is needed
-        data = nbt.load(os.path.join(self.worlddir, "level.dat"))[1]['Data']
+        data = overviewer_core_new.load(os.path.join(self.worlddir, "level.dat"))[1]['Data']
 
 
         # Hard-code this to only work with format version 19133, "Anvil"
@@ -1413,14 +1415,14 @@ class RegionSet(object):
         # path will be normalized in __init__
         return self.type
 
-    def _get_regionobj(self, regionfilename):
+    def _get_regionobj(self, regionfilename: str):
         # Check the cache first. If it's not there, create the
         # nbt.MCRFileReader object, cache it, and return it
         # May raise an nbt.CorruptRegionError
         try:
             return self.regioncache[regionfilename]
         except KeyError:
-            region = nbt.load_region(regionfilename)
+            region = overviewer_core_new.McrFileReader(regionfilename)
             self.regioncache[regionfilename] = region
             return region
 
@@ -2117,7 +2119,7 @@ def get_worlds():
             world_dat = os.path.join(world_path, "level.dat")
             if not os.path.exists(world_dat): continue
             try:
-                info = nbt.load(world_dat)[1]
+                info = overviewer_core_new.load(world_dat)[1]
                 info['Data']['path'] = os.path.join(save_dir, dir)
                 if 'LevelName' in info['Data'].keys():
                     ret[info['Data']['LevelName']] = info['Data']
@@ -2134,7 +2136,7 @@ def get_worlds():
         if not os.path.exists(world_dat): continue
         world_path = os.path.join(".", dir)
         try:
-            info = nbt.load(world_dat)[1]
+            info = overviewer_core_new.load(world_dat)[1]
             info['Data']['path'] = world_path
             if 'LevelName' in info['Data'].keys():
                 ret[info['Data']['LevelName']] = info['Data']

@@ -1,0 +1,12 @@
+[package]
+name = "minecraft_overviewer"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+name = "overviewer_core_new"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.22.2", features = ["extension-module"] }
+flate2 = "1.0"
