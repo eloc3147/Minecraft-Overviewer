@@ -54,3 +54,7 @@ class McrFileReader:
         This is so you can provide chunk coordinates in global coordinates,
         and still have the chunks load out of regions properly."""
         ...
+
+
+def transform_image_side(width: int, height: int, data: bytes) -> bytes:
+    ...

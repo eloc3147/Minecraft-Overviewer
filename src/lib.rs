@@ -14,6 +14,7 @@
 //    with the Overviewer.  If not, see <http://www.gnu.org/licenses/>.
 
 mod nbt;
+mod texture;
 
 use std::fs::File;
 use std::io::BufReader;
@@ -25,6 +26,7 @@ use pyo3::types::{PyDict, PyModule, PyModuleMethods};
 use pyo3::{pyfunction, pymodule, wrap_pyfunction, Bound, PyResult, Python};
 
 use nbt::{McrFileReader, NbtFileReader};
+use texture::transform_image_side;
 
 pyo3::create_exception!(overviewer_core_new, CorruptionError, PyException);
 pyo3::create_exception!(overviewer_core_new, FileSystemError, CorruptionError);
@@ -67,7 +69,9 @@ fn overviewer_core_new(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?;
 
     m.add_function(wrap_pyfunction!(load, m)?)?;
-
     m.add_class::<McrFileReader>()?;
+
+    m.add_function(wrap_pyfunction!(transform_image_side, m)?)?;
+
     Ok(())
 }

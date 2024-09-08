@@ -287,7 +287,7 @@ class RegionSet(object):
         self.regionfiles = {}
 
         # This holds a cache of open regionfile objects
-        self.regioncache = cache.LRUCache(size=16, destructor=lambda regionobj: regionobj.close())
+        self.regioncache = cache.LRUCache(size=16)
 
         for x, y, regionfile in self._iterate_regionfiles():
             # regionfile is a pathname

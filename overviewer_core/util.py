@@ -18,7 +18,6 @@ Misc utility routines used by multiple files that don't belong anywhere else
 """
 
 import errno
-import imp
 import os.path
 import platform
 import sys
@@ -28,7 +27,7 @@ from subprocess import PIPE, Popen
 
 
 def get_program_path():
-    if hasattr(sys, "frozen") or imp.is_frozen("__main__"):
+    if hasattr(sys, "frozen"):
         return os.path.dirname(sys.executable)
     else:
         try:
@@ -80,7 +79,7 @@ def findGitVersion():
             from . import overviewer_version
             return overviewer_version.VERSION
         except Exception:
-            return "unknown"
+            return "0.0.0"
 
 
 def is_bare_console():
